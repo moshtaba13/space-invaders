@@ -2,8 +2,12 @@
 #include <stdlib.h>
 
 #include "menu.h"
+#include "map.h"
+#include "game.h"
 
 int main() {
     system("cls");
-    menu();
+    //menu();
+    crat_map();
+    draw_map();
 }
