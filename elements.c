@@ -7,40 +7,45 @@
 #include "map.h"
 
 enemy enemies[MAX_ENEMIES];
+bullet bullets[MAX_BULLETS];
+bullet enemy_bullets[MAX_ENEMY_BULLETS];
+
+int bullet_index = 0; 
 
 void keyboard(player *one) {
     if (kbhit()) {
 
-        int nexe_x = one->x;
-        int nexe_y = one->y;
+        int next_x = one->x;
+        int next_y = one->y;
 
         switch (getch())
         {
         case 'w':
-            nexe_y--;
+            next_y--;
             break;
 
         case 's':
-            nexe_y++;
+            next_y++;
             break;
         
         case 'd':
-            nexe_x++;
+            next_x++;
             break;
         
         case 'a':
-            nexe_x--;
+            next_x--;
             break;
         case ' ':
+            shoot();
             break;
         
         default:
             break;
         }
 
-        if (map[nexe_y][nexe_x] != '#') {
-            one->x = nexe_x ;
-            one->y = nexe_y;
+        if (map[next_y][next_x] != '#') {
+            one->x = next_x ;
+            one->y = next_y;
         }
     }
 }
@@ -108,8 +113,20 @@ void spawn_enemy() {
     }
 }
 
+void shoot() {
+    bullets[bullet_index].x = pl.x;
+    bullets[bullet_index].y = pl.y - 1;
+    bullets[bullet_index].active = 1;   
+
+    bullet_index++;
+    if (bullet_index >= MAX_BULLETS) {
+        bullet_index = 0;
+    }
+}
+
 void update_enemies() {
     double p = 0, random;
+    double fire_chance = 0.05;
 
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (enemies[i].alive != 1) 
@@ -126,24 +143,28 @@ void update_enemies() {
         
             if (enemies[i].type == 1) {
 
-                if ((abs(dx) + abs(dy)) != 0) {
-                    p = (double)abs(dx) / (abs(dx) + abs(dy));
-                }
-                
-                random = (double)rand() / RAND_MAX;
+                if (abs(dx) <= 1 && abs(dy) <= 1) 
+                    pl.health -= enemies[i].damage;
 
-                if (random < p) {
-                    if (dx > 0)
-                        next_x++;     
-                    else if (dx < 0) 
-                        next_x--;
-                } 
-                
                 else {
-                    if (dy > 0)
-                        next_y++;      
-                    else if (dy < 0)
-                        next_y--; 
+                    if ((abs(dx) + abs(dy)) != 0) 
+                        p = (double)abs(dx) / (abs(dx) + abs(dy));
+                
+                    random = (double)rand() / RAND_MAX;
+
+                    if (random < p) {
+                        if (dx > 0)
+                            next_x++;     
+                        else if (dx < 0) 
+                            next_x--;
+                    } 
+                
+                    else {
+                        if (dy > 0)
+                            next_y++;      
+                        else if (dy < 0)
+                            next_y--; 
+                    }
                 }
 
                 if (map[next_y][next_x] != '#') {
@@ -171,6 +192,70 @@ void update_enemies() {
                     enemies[i].x = next_x;
                     enemies[i].y = next_y;
                 }
+ 
+                if (enemies[i].x == pl.x)
+                    fire_chance = 0.30;
+
+                if ((double)rand() / RAND_MAX < fire_chance) {
+                    for (int b = 0; b < MAX_ENEMY_BULLETS; b++) {
+                        if (enemy_bullets[b].active != 1) {
+                            enemy_bullets[b].active = 1;
+                            enemy_bullets[b].x = enemies[i].x;
+                            enemy_bullets[b].y = enemies[i].y + 1;
+                            break; 
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void update_bullets() {
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (bullets[i].active) {
+            bullets[i].y--; 
+
+            if (map[bullets[i].y][bullets[i].x] == '#') {
+                bullets[i].active = 0;
+                continue;
+            }
+
+            for (int j = 0; j < MAX_ENEMIES; j++) {
+                if (enemies[j].alive && enemies[j].x == bullets[i].x && enemies[j].y == bullets[i].y) {
+                    enemies[j].health -= pl.damage; 
+                    bullets[i].active = 0;
+
+                    if (enemies[j].health <= 0) {
+                        enemies[j].alive = 0;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+}
+
+
+void update_enemy_bullets() {
+    for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
+        if (enemy_bullets[i].active) {
+            enemy_bullets[i].y++; 
+
+            if (map[enemy_bullets[i].y][enemy_bullets[i].x] == '#') {
+                enemy_bullets[i].active = 0; 
+                continue;
+            }
+
+            if (enemy_bullets[i].x == pl.x && enemy_bullets[i].y == pl.y) {
+                pl.health--;
+                enemy_bullets[i].active = 0;
+
+
+                if (pl.health <= 0) {
+                    
+                }
+
             }
         }
     }

@@ -2,6 +2,8 @@
 #define ELEMENTS_H
 
 #define MAX_ENEMIES 100
+#define MAX_BULLETS 3
+#define MAX_ENEMY_BULLETS 20
 
 typedef struct {
     int x;
@@ -17,7 +19,7 @@ typedef struct {
 typedef struct {
     int x;
     int y;
-    int alive;
+    int active;
 }bullet;
 
 typedef struct {
@@ -34,8 +36,12 @@ typedef struct {
 void keyboard(player * );
 void spawn_enemy(void);
 void update_enemies(void);
+void update_bullets(void);
+void shoot(void);
 
 extern player pl;
 extern enemy enemies[MAX_ENEMIES];
+extern bullet bullets[MAX_BULLETS];
+extern bullet enemy_bullets[MAX_ENEMY_BULLETS];
 
 #endif

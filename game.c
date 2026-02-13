@@ -71,6 +71,29 @@ void draw_map()
             if (flag)
                 continue;
 
+            int flag1 = 0;
+            for (int k = 0; k < MAX_ENEMY_BULLETS; k++) {
+                if (enemy_bullets[k].active && enemy_bullets[k].x == j && enemy_bullets[k].y == i) {
+                    wprintf(L"\x1b[31m|\x1b[0m"); 
+                    flag1 = 1;
+                    break;
+                }
+            }
+            if (flag1)
+                continue;
+
+            int flag2 = 0;
+            for (int k = 0; k < MAX_BULLETS; k++) {
+                if (bullets[k].active && bullets[k].x == j && bullets[k].y == i) {
+                    wprintf(L"\x1b[32m|\x1b[0m");
+                    flag2 = 1;
+                    break;
+                }
+            }
+
+            if (flag2)
+                continue;
+
             if (map[i][j] == '#')
                 wprintf(L"█");
 
@@ -82,53 +105,4 @@ void draw_map()
     }
 }
 
-/*
-
-    for (int i = 0; i < HEIGHT; i++) {
-        for (int j = 0; j < WIDTH; j++) {
-            
-            // --- اولویت ۱: رسم بازیکن ---
-            if (i == pl.y && j == pl.x) {
-                wprintf(L"\x1b[34m▲\x1b[0m"); // آبی (مثلث رو به بالا)
-                continue; // رفتن به خانه بعدی
-            }
-
-
-            for (int k = 0; k < MAX_ENEMIES; k++) {
-                if (enemies[k].alive && enemies[k].x == j && enemies[k].y == i) {
-                    if (enemies[k].type == 1) {
-                        wprintf(L"\x1b[31m■\x1b[0m"); 
-                    } else {
-                        wprintf(L"\x1b[33m▼\x1b[0m"); 
-                    }
-                    break;
-                }
-            }
-
-
-
-            // --- اولویت ۳: رسم تیرها (کد قبلی خودت) ---
-            int is_bullet = 0;
-            for (int k = 0; k < 3; k++) { // فرض کردیم ۳ تیر بازیکن داریم
-                 if (bullets[k].active && bullets[k].x == j && bullets[k].y == i) {
-                    wprintf(L"\x1b[32m|\x1b[0m"); // سبز
-                    is_bullet = 1;
-                    break;
-                 }
-            }
-            if (is_bullet) continue;
-
-
-            // --- اولویت ۴: دیوار و فضای خالی ---
-            if (map[i][j] == '#') {
-                wprintf(L"█"); // دیوار
-            } else {
-                wprintf(L" "); // فضای خالی
-            }
-        }
-        
-        // رفتن به خط بعد (به جز خط آخر)
-        if (i < HEIGHT - 1) wprintf(L"\n");
-    }
-}*/
 
