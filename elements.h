@@ -33,15 +33,20 @@ typedef struct {
     int action;
 }enemy;
 
+
 void keyboard(player * );
 void spawn_enemy(void);
 void update_enemies(void);
 void update_bullets(void);
 void shoot(void);
+void update_enemy_bullets(void);
 
 extern player pl;
 extern enemy enemies[MAX_ENEMIES];
 extern bullet bullets[MAX_BULLETS];
 extern bullet enemy_bullets[MAX_ENEMY_BULLETS];
+extern int gameover;
+extern int spawned;
+extern int killed;
 
 #endif

@@ -2,15 +2,18 @@
 #include <conio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <windows.h>
 
 #include "elements.h"
 #include "map.h"
+#include "game.h"
 
 enemy enemies[MAX_ENEMIES];
 bullet bullets[MAX_BULLETS];
 bullet enemy_bullets[MAX_ENEMY_BULLETS];
 
 int bullet_index = 0; 
+int spawned = 0, killed = 0, max_enemy = 0, gameover = 0;
 
 void keyboard(player *one) {
     if (kbhit()) {
@@ -55,6 +58,9 @@ void spawn_enemy() {
     double spawn, random, shooter, type;
     int max, enemy = 0, c, check = 0; 
 
+    if (spawned >= max_enemy) 
+        return;
+
     spawn = 0.02 + (0.0025 * pl.level);
     if (spawn > 0.4) 
         spawn = 0.4;
@@ -64,6 +70,7 @@ void spawn_enemy() {
     if (random < spawn) {
         
         max = (int)(3 * sqrt(pl.level));
+        max_enemy = max;
 
         for(int i = 0; i <  MAX_ENEMIES ;i++)
             if(enemies[i].alive)
@@ -82,6 +89,8 @@ void spawn_enemy() {
                 
                 if (check) 
                     return;
+
+                spawned++;
 
                 enemies[i].alive = 1;
                 enemies[i].x = c;
@@ -143,8 +152,11 @@ void update_enemies() {
         
             if (enemies[i].type == 1) {
 
-                if (abs(dx) <= 1 && abs(dy) <= 1) 
+                if (abs(dx) <= 1 && abs(dy) <= 1) {
                     pl.health -= enemies[i].damage;
+                    if (pl.health <= 0) 
+                        gameover = 1;
+                }
 
                 else {
                     if ((abs(dx) + abs(dy)) != 0) 
@@ -228,6 +240,22 @@ void update_bullets() {
 
                     if (enemies[j].health <= 0) {
                         enemies[j].alive = 0;
+                        killed++;
+                        if (enemies[i].type == 1) 
+                            pl.coins += 3;
+                        else 
+                            pl.coins += 5;
+                        
+                        if (killed >= max_enemy) {
+                        system("cls");
+                        wprintf(L"\n\n\n\t\t LEVEL %d COMPLETED! \n", pl.level);
+                        wprintf(L"\t\t Get Ready for Level %d... \n", pl.level + 1);
+                        Sleep(5000);
+
+                        pl.level++;
+                        reset();   
+                        return;  
+                        }   
                     }
                     break;
                 }
@@ -251,9 +279,8 @@ void update_enemy_bullets() {
                 pl.health--;
                 enemy_bullets[i].active = 0;
 
-
                 if (pl.health <= 0) {
-                    
+                    gameover = 1;
                 }
 
             }
